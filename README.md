@@ -1,2 +1,250 @@
 # Cargotrack
 easy awb checking
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CargoTrack v1.0 — Adi Hidayat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #0ea878; --accent2: #7c3aed; --warn: #d97706; --danger: #dc2626;
+            --bg: #f1f5f9; --surface: #ffffff; --surf2: #f8fafc; --text: #0f172a;
+            --text2: #475569; --label: #94a3b8; --sep: rgba(15,23,42,0.08);
+            --border: 1.5px solid var(--sep); --shadow: 0 4px 20px rgba(15,23,42,0.08);
+            --font: 'Sora', sans-serif; --mono: 'JetBrains Mono', monospace;
+            --radius: 12px; --radius-sm: 8px;
+        }
+        body.dark {
+            --bg: #0d1117; --surface: #161b22; --surf2: #1c2128; --text: #e6edf3;
+            --text2: #8b949e; --sep: rgba(240,246,252,0.1);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font); background: var(--bg); color: var(--text); transition: all .25s; min-height: 100vh; overflow-x: hidden; }
+
+        /* Header Style */
+        .app-header { background: var(--surface); padding: 12px 20px; display: flex; align-items: center; gap: 12px; border-bottom: var(--border); position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
+        .header-logo { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; }
+        .header-info { display: flex; flex-direction: column; }
+        .header-title { font-size: 15px; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; line-height: 1.2; }
+        .header-author { font-size: 9px; font-family: var(--mono); color: var(--label); font-weight: 600; text-transform: uppercase; }
+        .dark-toggle { margin-left: auto; background: var(--surf2); border: var(--border); border-radius: 8px; width: 36px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        .wrap { max-width: 600px; margin: 0 auto; padding: 20px 16px; }
+        
+        /* Card UI */
+        .card { background: var(--surface); border-radius: var(--radius); border: var(--border); margin-bottom: 16px; overflow: hidden; box-shadow: var(--shadow); }
+        .card-section { padding: 16px; }
+        .section-label { font-size: 10px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; font-family: var(--mono); }
+        
+        .input-group { display: flex; gap: 8px; }
+        input { flex: 1; height: 48px; padding: 0 16px; border-radius: var(--radius-sm); border: var(--border); background: var(--surf2); color: var(--text); font-family: var(--mono); font-weight: 600; font-size: 15px; outline: none; transition: all 0.2s; width: 100%; }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(14,168,120,0.1); }
+        
+        .btn { height: 48px; padding: 0 20px; border-radius: var(--radius-sm); border: none; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: var(--font); display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; }
+        .btn-accent { background: var(--accent); color: white; }
+        .btn-ghost { background: var(--surf2); color: var(--text2); border: var(--border); }
+        .btn-dark { background: var(--text); color: var(--surface); }
+        .btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+        .btn:active { transform: scale(0.98); }
+
+        /* Metrics */
+        .metrics-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; display: none; }
+        .metric { background: var(--surface); padding: 14px; border-radius: var(--radius); border: var(--border); text-align: center; box-shadow: var(--shadow); }
+        .metric-val { font-size: 17px; font-weight: 800; font-family: var(--mono); color: var(--accent); }
+        .metric-lbl { font-size: 8px; color: var(--label); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; font-weight: 700; }
+
+        .result-panel { display: none; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; font-family: var(--mono); margin-top: 8px; text-transform: uppercase; }
+        .badge-sats { background: rgba(37, 99, 235, 0.1); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.2); }
+        .badge-dnata { background: rgba(217, 119, 6, 0.1); color: #d97706; border: 1px solid rgba(217, 119, 6, 0.2); }
+
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1c2128; color: #ffffff; padding: 12px 24px; border-radius: 12px; font-size: 11px; font-weight: 700; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.3); font-family: var(--mono); border: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* Footer Copyright Update */
+        .app-footer { margin-top: 40px; padding: 24px; text-align: center; border-top: 1px solid var(--sep); background: var(--surf2); border-radius: var(--radius); }
+        .footer-copy { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--label); font-family: var(--mono); margin-bottom: 6px; }
+        .footer-author { font-size: 12px; font-weight: 700; color: var(--text2); display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .footer-version { display: inline-block; margin-top: 10px; padding: 2px 8px; background: var(--sep); border-radius: 4px; font-size: 9px; font-weight: 800; color: var(--label); }
+    </style>
+</head>
+<body>
+
+<div id="toast" class="toast">✓ NOMOR DISALIN</div>
+
+<div class="app-header">
+    <div class="header-logo">📦</div>
+    <div class="header-info">
+        <div class="header-title">CargoTrack</div>
+        <div class="header-author">Adi Hidayat</div>
+    </div>
+    <button class="dark-toggle" onclick="toggleDark()" id="darkBtn">🌙</button>
+</div>
+
+<div class="wrap">
+    <!-- Search Box -->
+    <div class="card">
+        <div class="card-section">
+            <div class="section-label">Input Air Waybill</div>
+            <div class="input-group">
+                <input type="text" id="awbInput" placeholder="Masukkan Nomor AWB..." maxlength="15">
+                <button class="btn btn-accent" onclick="processAWB()">LACAK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Info -->
+    <div class="metrics-row" id="metrics">
+        <div class="metric">
+            <div class="metric-val" id="mHandler">-</div>
+            <div class="metric-lbl">Terminal Handler</div>
+        </div>
+        <div class="metric">
+            <div class="metric-val" id="mTerminal">-</div>
+            <div class="metric-lbl">Bay Location</div>
+        </div>
+    </div>
+
+    <!-- Results Area -->
+    <div id="resultArea" class="result-panel">
+        <div class="card">
+            <div class="card-section">
+                <div class="section-label">Hasil Deteksi</div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h2 id="airlineName" style="font-size: 22px; font-weight: 800; letter-spacing: -0.8px; color: var(--text);">Detecting...</h2>
+                        <div id="handlerBadge" class="badge">SATS</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 8px; color: var(--label); font-weight: 800; margin-bottom: 2px; text-transform: uppercase;">Reference No.</div>
+                        <div id="awbDisplay" style="font-family: var(--mono); font-weight: 700; font-size: 15px; color: var(--accent2);"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="padding: 0 16px 20px; display: grid; grid-template-columns: 1fr; gap: 10px;">
+                <!-- Manual Paste Tracking Button -->
+                <button class="btn btn-dark" onclick="goToTracking()">
+                    🚀 LACAK POSISI REAL-TIME (MANUAL PASTE)
+                </button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button class="btn btn-ghost" onclick="openMap()">📍 NAVIGASI PETA</button>
+                    <button class="btn btn-ghost" onclick="goToOfficial()">🌐 PORTAL RESMI</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Updated Copyright 2026 -->
+    <div class="app-footer">
+        <div class="footer-copy">© 2026 ALL RIGHTS RESERVED</div>
+        <div class="footer-author">
+            <span>APP BY</span>
+            <span style="color: var(--accent);">ADI HIDAYAT</span>
+        </div>
+        <div class="footer-version">VERSION 1.0</div>
+    </div>
+</div>
+
+<script>
+    let isDark = false;
+    let currentAWB = "";
+    let isDnata = false;
+
+    // Database Changi
+    const DNATA_LIST = {
+        "057": "Air France", "074": "KLM Cargo", "121": "Garuda Indonesia", 
+        "176": "Emirates SkyCargo", "126": "China Airlines", "180": "Korean Air", 
+        "403": "Polar Air Cargo", "775": "SriLankan Cargo", "065": "Saudi Cargo"
+    };
+
+    const SATS_LIST = {
+        "157": "Qatar Airways", "618": "Singapore Airlines", "160": "Cathay Pacific", 
+        "020": "Lufthansa Cargo", "131": "Japan Airlines", "988": "Asiana Airlines", 
+        "232": "Malaysia Airlines", "999": "Air China", "784": "China Eastern"
+    };
+
+    function toggleDark() {
+        isDark = !isDark;
+        document.body.classList.toggle('dark', isDark);
+        document.getElementById('darkBtn').textContent = isDark ? '☀️' : '🌙';
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerHTML = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 4000);
+    }
+
+    function processAWB() {
+        const val = document.getElementById('awbInput').value.trim();
+        if (!val) return;
+
+        currentAWB = val.replace(/[^0-9]/g, '');
+        const prefix = currentAWB.substring(0, 3);
+
+        if (currentAWB.length < 11) {
+            alert("Nomor AWB minimal 11 digit!");
+            return;
+        }
+
+        let handler, terminal, airline, badgeClass;
+        if (DNATA_LIST[prefix]) {
+            isDnata = true; handler = "DNATA"; terminal = "T1/T2"; 
+            airline = DNATA_LIST[prefix]; badgeClass = "badge-dnata";
+        } else {
+            isDnata = false; handler = "SATS"; terminal = "AFT 1-6"; 
+            airline = SATS_LIST[prefix] || "Intl Carrier"; badgeClass = "badge-sats";
+        }
+
+        document.getElementById('mHandler').textContent = handler;
+        document.getElementById('mTerminal').textContent = terminal;
+        document.getElementById('airlineName').textContent = airline;
+        document.getElementById('awbDisplay').textContent = prefix + "-" + currentAWB.substring(3);
+        
+        const badge = document.getElementById('handlerBadge');
+        badge.textContent = handler;
+        badge.className = "badge " + badgeClass;
+
+        document.getElementById('metrics').style.display = 'grid';
+        document.getElementById('resultArea').style.display = 'block';
+        
+        navigator.clipboard.writeText(currentAWB);
+        showToast("✓ AWB " + currentAWB + " DISALIN");
+    }
+
+    function goToTracking() {
+        // Alur Manual Paste ke Track-Trace
+        const url = `https://www.track-trace.com/aircargo`;
+        navigator.clipboard.writeText(currentAWB);
+        showToast("✓ NOMOR DISALIN<br>SILAKAN PASTE MANUAL DI WEB");
+        setTimeout(() => {
+            window.open(url, '_blank');
+        }, 800);
+    }
+
+    function openMap() {
+        const lat = isDnata ? "1.3833" : "1.3815";
+        const lng = isDnata ? "1.4001" : "103.9968";
+        const name = isDnata ? "dnata+Singapore+Cargo" : "SATS+Airfreight+Terminal+5";
+        window.open(`https://www.google.com/maps/search/?api=1&query=${name}&query_place_id=${lat},${lng}`, '_blank');
+    }
+
+    function goToOfficial() {
+        const url = isDnata ? "https://www.dnata.com/en/singapore/cargo" : "https://www.satscargo.com/e-services/cargo-tracking/";
+        navigator.clipboard.writeText(currentAWB);
+        showToast("✓ NOMOR DISALIN<br>SILAKAN PASTE DI WEB " + (isDnata ? "DNATA" : "SATS"));
+        setTimeout(() => {
+            window.open(url, '_blank');
+        }, 800);
+    }
+</script>
+
+</body>
+</html>
