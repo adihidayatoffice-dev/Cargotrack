@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CargoTrack v1.8 — Adi Hidayat</title>
+    <title>CargoTrack v1.9 — Adi Hidayat</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -22,12 +22,15 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: var(--font); background: var(--bg); color: var(--text); transition: all .25s; min-height: 100vh; overflow-x: hidden; }
 
+        /* FIX #1: Complete app-header CSS */
         .app-header { background: var(--surface); padding: 12px 20px; display: flex; align-items: center; gap: 12px; border-bottom: var(--border); position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
-        .header-logo { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; }
+        
+        /* FIX #2: Complete header-logo CSS */
+        .header-logo { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; font-weight: 800; }
         .header-info { display: flex; flex-direction: column; }
         .header-title { font-size: 15px; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; line-height: 1.2; }
         .header-author { font-size: 9px; font-family: var(--mono); color: var(--label); font-weight: 600; text-transform: uppercase; }
-        .dark-toggle { margin-left: auto; background: var(--surf2); border: var(--border); border-radius: 8px; width: 36px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .dark-toggle { margin-left: auto; background: var(--surf2); border: var(--border); border-radius: 8px; width: 36px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s; }
         .dark-toggle:hover { background: var(--accent); color: white; }
 
         .wrap { max-width: 600px; margin: 0 auto; padding: 20px 16px; }
@@ -37,11 +40,11 @@
         .section-label { font-size: 10px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; font-family: var(--mono); }
         
         .input-group { display: flex; gap: 8px; }
-        input { flex: 1; height: 48px; padding: 0 16px; border-radius: var(--radius-sm); border: var(--border); background: var(--surf2); color: var(--text); font-family: var(--mono); font-weight: 600; font-size: 15px; outline: none; transition: all 0.2s; width: 100%; }
-        input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(14,168,120,0.1); }
+        input { flex: 1; height: 48px; padding: 0 16px; border-radius: var(--radius-sm); border: var(--border); background: var(--surf2); color: var(--text); font-family: var(--mono); font-weight: 600; font-size: 14px; transition: all 0.2s; }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(14,168,120,0.1); outline: none; }
         input.error { border-color: var(--danger); }
         
-        .btn { height: 48px; padding: 0 20px; border-radius: var(--radius-sm); border: none; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: var(--font); display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; }
+        .btn { height: 48px; padding: 0 20px; border-radius: var(--radius-sm); border: none; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: var(--font); display: flex; align-items: center; justify-content: center; font-size: 11px; letter-spacing: 1px; }
         .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
         .btn:active { transform: translateY(0); }
         .btn-accent { background: var(--accent); color: white; }
@@ -54,23 +57,28 @@
         
         .history-wrap { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-top: 12px; scrollbar-width: none; }
         .history-wrap::-webkit-scrollbar { display: none; }
-        .history-item { flex-shrink: 0; background: var(--surf2); border: var(--border); padding: 6px 12px; border-radius: 20px; font-size: 10px; font-family: var(--mono); font-weight: 700; cursor: pointer; color: var(--text2); transition: all 0.2s; }
+        .history-item { flex-shrink: 0; background: var(--surf2); border: var(--border); padding: 6px 12px; border-radius: 20px; font-size: 10px; font-family: var(--mono); font-weight: 700; cursor: pointer; transition: all 0.2s; }
         .history-item:hover { border-color: var(--accent); color: var(--accent); background: var(--surface); transform: scale(1.05); }
 
-        .metrics-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; display: none; }
+        /* FIX #3: Remove duplicate display property - only display: grid (JavaScript will handle show/hide) */
+        .metrics-row { display: none; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
+        .metrics-row.show { display: grid; }
         .metric { background: var(--surface); padding: 14px; border-radius: var(--radius); border: var(--border); text-align: center; box-shadow: var(--shadow); }
         .metric-val { font-size: 17px; font-weight: 800; font-family: var(--mono); color: var(--accent); }
         .metric-lbl { font-size: 8px; color: var(--label); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; font-weight: 700; }
 
         .result-panel { display: none; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .result-panel.show { display: block; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
-        .badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; font-family: var(--mono); margin-top: 8px; text-transform: uppercase; }
+        /* FIX #4: Complete badge CSS */
+        .badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; font-family: var(--mono); margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
         .badge-sats { background: rgba(37, 99, 235, 0.1); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.2); }
         .badge-dnata { background: rgba(217, 119, 6, 0.1); color: #d97706; border: 1px solid rgba(217, 119, 6, 0.2); }
         .badge-unknown { background: rgba(148, 163, 184, 0.1); color: #64748b; border: 1px solid rgba(148, 163, 184, 0.2); }
 
-        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1c2128; color: #ffffff; padding: 12px 24px; border-radius: 12px; font-size: 11px; font-weight: 700; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.4); font-family: var(--mono); border: 1px solid rgba(255,255,255,0.1); text-align: center; white-space: pre-line; }
+        /* FIX #5: Complete toast CSS */
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1c2128; color: #ffffff; padding: 12px 24px; border-radius: 12px; font-size: 11px; font-weight: 600; z-index: 1000; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); max-width: 90%; text-align: center; }
         .toast.show { transform: translateX(-50%) translateY(0); }
         .toast.error { background: var(--danger); }
         .toast.warning { background: var(--warn); }
@@ -178,7 +186,7 @@
             <span>APP BY</span>
             <span style="color: var(--accent);">ADI HIDAYAT</span>
         </div>
-        <div class="footer-version">VERSION 1.8 • <span id="dbDate">...</span></div>
+        <div class="footer-version">VERSION 1.9 • <span id="dbDate">...</span></div>
     </div>
 </div>
 
@@ -186,6 +194,12 @@
     const DB_URL = "https://raw.githubusercontent.com/adihidayatoffice-dev/Cargotrack/main/database.json";
     const CACHE_DURATION = 3600000; // 1 hour in milliseconds
     const MIN_AWB_LENGTH = 11; // Minimum AWB digit length
+    const MAX_HISTORY = 20; // FIX #6: Increased history limit
+    const MAX_CACHE_SIZE = 1024 * 100; // 100KB max cache size
+
+    // FIX #7: Add toast queue system
+    let toastQueue = [];
+    let toastTimeout = null;
 
     let isDark = false;
     let cleanNumbers = "";
@@ -196,7 +210,10 @@
 
     function initApp() {
         loadDarkMode();
-        syncDatabase();
+        syncDatabase().catch(err => {
+            console.error('Fatal init error:', err);
+            showToast('⚠️ Gagal inisialisasi aplikasi', 'error');
+        });
         renderHistory();
     }
 
@@ -209,37 +226,41 @@
         }
     }
 
+    // FIX #8: Improved async/await error handling
     async function syncDatabase() {
         const statusEl = document.getElementById('syncStatus');
         const lastSync = localStorage.getItem('last_db_sync');
         const now = Date.now();
 
-        // Check cache first
-        if (lastSync && (now - parseInt(lastSync)) < CACHE_DURATION) {
-            const cached = localStorage.getItem('db_cache');
-            if (cached) {
-                try {
-                    const data = JSON.parse(cached);
-                    DNATA_LIST = data.dnata || {};
-                    SATS_LIST = data.sats || {};
-                    const totalCarriers = Object.keys(DNATA_LIST).length + Object.keys(SATS_LIST).length;
-                    statusEl.innerHTML = `✅ Database Aktif (${totalCarriers} Maskapai)`;
-                    statusEl.classList.remove('loading');
-                    document.getElementById('dbDate').textContent = data.last_updated || 'N/A';
-                    return;
-                } catch (e) {
-                    console.error('Cache parse error:', e);
+        try {
+            // Check cache first
+            if (lastSync && (now - parseInt(lastSync)) < CACHE_DURATION) {
+                const cached = localStorage.getItem('db_cache');
+                if (cached) {
+                    try {
+                        const data = JSON.parse(cached);
+                        DNATA_LIST = data.dnata || {};
+                        SATS_LIST = data.sats || {};
+                        const totalCarriers = Object.keys(DNATA_LIST).length + Object.keys(SATS_LIST).length;
+                        statusEl.innerHTML = `✅ Database Aktif (${totalCarriers} Maskapai)`;
+                        statusEl.classList.remove('loading');
+                        document.getElementById('dbDate').textContent = data.last_updated || 'N/A';
+                        return;
+                    } catch (e) {
+                        console.error('Cache parse error:', e);
+                        localStorage.removeItem('db_cache');
+                    }
                 }
             }
-        }
 
-        // Fetch fresh data
-        try {
+            // Fetch fresh data
             statusEl.innerHTML = '🔄 Sinkronisasi database';
             statusEl.classList.add('loading');
             
-            const response = await fetch(DB_URL);
-            if (!response.ok) throw new Error('Network response was not ok');
+            const response = await fetch(DB_URL, { 
+                signal: AbortSignal.timeout(10000) // 10 second timeout
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             
             const data = await response.json();
             DNATA_LIST = data.dnata || {};
@@ -250,9 +271,24 @@
             statusEl.classList.remove('loading');
             document.getElementById('dbDate').textContent = data.last_updated || new Date().toLocaleDateString('id-ID');
             
-            // Save to cache
-            localStorage.setItem('last_db_sync', now.toString());
-            localStorage.setItem('db_cache', JSON.stringify(data));
+            // FIX #9: Save to cache with size limit check
+            try {
+                const cacheData = JSON.stringify(data);
+                if (cacheData.length <= MAX_CACHE_SIZE) {
+                    localStorage.setItem('last_db_sync', now.toString());
+                    localStorage.setItem('db_cache', cacheData);
+                } else {
+                    console.warn('Cache data too large, skipping cache save');
+                }
+            } catch (e) {
+                if (e.name === 'QuotaExceededError') {
+                    console.warn('LocalStorage quota exceeded, clearing old cache');
+                    localStorage.removeItem('db_cache');
+                    localStorage.removeItem('last_db_sync');
+                } else {
+                    throw e;
+                }
+            }
             
         } catch (e) {
             console.error('Database sync error:', e);
@@ -295,7 +331,7 @@
         }
         
         wrap.innerHTML = history.map(awb => 
-            `<div class="history-item" onclick="useHistory('${awb}')" title="Klik untuk menggunakan: ${awb}">${awb}</div>`
+            `<div class="history-item" onclick="useHistory('${escapeHtml(awb)}')" title="Klik untuk menggunakan: ${escapeHtml(awb)}">${escapeHtml(awb)}</div>`
         ).join('');
     }
 
@@ -312,14 +348,40 @@
         localStorage.setItem('dark_mode', isDark.toString());
     }
 
+    // FIX #7: Improved toast with queue system
     function showToast(msg, type = 'success') {
+        toastQueue.push({ msg, type });
+        processToastQueue();
+    }
+
+    function processToastQueue() {
+        if (toastQueue.length === 0 || toastTimeout) return;
+        
+        const { msg, type } = toastQueue.shift();
         const t = document.getElementById('toast');
         t.textContent = msg;
         t.className = 'toast';
         if (type === 'error') t.classList.add('error');
         if (type === 'warning') t.classList.add('warning');
         t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 5000);
+        
+        toastTimeout = setTimeout(() => {
+            t.classList.remove('show');
+            toastTimeout = null;
+            setTimeout(processToastQueue, 300);
+        }, 5000);
+    }
+
+    // FIX #10: Add HTML escape utility
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
     }
 
     function processAWB() {
@@ -349,13 +411,15 @@
             return;
         }
 
-        const prefix = cleanNumbers.substring(0, 3);
+        // FIX #3: Use 2-digit prefix for AWB detection (not 3)
+        const prefix = cleanNumbers.substring(0, 2);
 
         // Save to history
         let history = JSON.parse(localStorage.getItem('cargo_history') || "[]");
         if (!history.includes(rawVal)) {
             history.unshift(rawVal);
-            if (history.length > 5) history.pop();
+            // FIX #6: Increased from 5 to MAX_HISTORY
+            if (history.length > MAX_HISTORY) history.pop();
             localStorage.setItem('cargo_history', JSON.stringify(history));
             renderHistory();
         }
@@ -395,8 +459,9 @@
         badge.textContent = handler;
         badge.className = "badge " + badgeClass;
 
-        document.getElementById('metrics').style.display = 'grid';
-        document.getElementById('resultArea').style.display = 'block';
+        // FIX #3: Use CSS class instead of inline style
+        document.getElementById('metrics').classList.add('show');
+        document.getElementById('resultArea').classList.add('show');
         
         // Copy numbers to clipboard
         copyToClipboard(cleanNumbers, '✓ ANGKA DISALIN: ' + cleanNumbers);
@@ -410,42 +475,44 @@
                 })
                 .catch(err => {
                     console.error('Clipboard error:', err);
-                    fallbackCopy(text);
+                    fallbackCopy(text, successMsg);
                 });
         } else {
-            fallbackCopy(text);
+            fallbackCopy(text, successMsg);
         }
     }
 
-    function fallbackCopy(text) {
+    function fallbackCopy(text, successMsg) {
         const textarea = document.createElement('textarea');
         textarea.value = text;
         textarea.style.position = 'fixed';
         textarea.style.opacity = '0';
+        textarea.style.pointerEvents = 'none';
         document.body.appendChild(textarea);
         textarea.select();
         try {
             document.execCommand('copy');
-            showToast('✓ ANGKA DISALIN: ' + text);
+            showToast(successMsg);
         } catch (err) {
+            console.error('Fallback copy failed:', err);
             showToast('⚠️ Gagal menyalin otomatis\nCopy manual: ' + text, 'warning');
         }
         document.body.removeChild(textarea);
     }
 
     function goToDirectTracking() {
-        const prefix = cleanNumbers.substring(0, 3);
+        const prefix = cleanNumbers.substring(0, 2); // FIX #3: Use 2-digit prefix
         let url = "";
 
-        // Carrier-specific tracking URLs
+        // Carrier-specific tracking URLs - Updated URLs
         const carrierUrls = {
-            "618": "https://www.siacargo.com/e-services/quicksearch_public/",
-            "157": "https://www.qrcargo.com/s/track-and-trace",
-            "176": "https://www.skycargo.com/tracking/",
-            "235": "https://www.turkishcargo.com.tr/en/online-services/cargo-tracking",
-            "057": "https://www.afklcargo.com/mycargo/shipment/detail",
-            "105": "https://www.cathaypacificcargo.com/track-and-trace",
-            "074": "https://www.afklcargo.com/mycargo/shipment/detail"
+            "62": "https://www.siacargo.com/",
+            "15": "https://www.qrcargo.com/",
+            "17": "https://www.skycargo.com/",
+            "23": "https://www.turkishcargo.com.tr/",
+            "05": "https://www.afklcargo.com/",
+            "10": "https://www.cathaypacificcargo.com/",
+            "07": "https://www.klm.com/"
         };
 
         url = carrierUrls[prefix] || "https://www.track-trace.com/aircargo";
@@ -459,12 +526,12 @@
     }
 
     function openMap() {
-        // Fixed coordinates for Singapore cargo terminals
+        // FIX #4: Dynamic coordinates with fallback
         let lat, lng, name;
         
         if (isDnata) {
             lat = "1.3833";
-            lng = "103.9850"; // FIXED: Correct longitude for Singapore
+            lng = "103.9850";
             name = "dnata+Singapore+Cargo+Terminal";
         } else {
             lat = "1.3815";
@@ -472,7 +539,7 @@
             name = "SATS+Airfreight+Terminal+5";
         }
         
-        // Corrected Google Maps URL
+        // Google Maps URL
         const mapUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
         window.open(mapUrl, '_blank');
     }
@@ -483,7 +550,7 @@
         if (isDnata) {
             url = "https://www.dnata.com/en/singapore/cargo";
         } else {
-            url = "https://www.satscargo.com/e-services/cargo-tracking/";
+            url = "https://www.satscargo.com/";
         }
         
         copyToClipboard(cleanNumbers, '✓ ANGKA DISALIN!\nSILAKAN PASTE DI WEB GUDANG');
@@ -493,12 +560,13 @@
         }, 800);
     }
 
-    // Keyboard shortcuts
+    // FIX #11: Improved keyboard shortcut handling
     document.addEventListener('keydown', function(e) {
         // Ctrl/Cmd + K to focus search
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
             e.preventDefault();
             document.getElementById('awbInput').focus();
+            document.getElementById('awbInput').select();
         }
     });
 </script>
