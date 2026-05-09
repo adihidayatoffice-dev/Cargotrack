@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CargoTrack v1.7 — Adi Hidayat</title>
+    <title>CargoTrack v1.8 — Adi Hidayat</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -27,7 +27,8 @@
         .header-info { display: flex; flex-direction: column; }
         .header-title { font-size: 15px; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; line-height: 1.2; }
         .header-author { font-size: 9px; font-family: var(--mono); color: var(--label); font-weight: 600; text-transform: uppercase; }
-        .dark-toggle { margin-left: auto; background: var(--surf2); border: var(--border); border-radius: 8px; width: 36px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .dark-toggle { margin-left: auto; background: var(--surf2); border: var(--border); border-radius: 8px; width: 36px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .dark-toggle:hover { background: var(--accent); color: white; }
 
         .wrap { max-width: 600px; margin: 0 auto; padding: 20px 16px; }
         
@@ -38,15 +39,23 @@
         .input-group { display: flex; gap: 8px; }
         input { flex: 1; height: 48px; padding: 0 16px; border-radius: var(--radius-sm); border: var(--border); background: var(--surf2); color: var(--text); font-family: var(--mono); font-weight: 600; font-size: 15px; outline: none; transition: all 0.2s; width: 100%; }
         input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(14,168,120,0.1); }
+        input.error { border-color: var(--danger); }
         
         .btn { height: 48px; padding: 0 20px; border-radius: var(--radius-sm); border: none; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: var(--font); display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; }
+        .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+        .btn:active { transform: translateY(0); }
         .btn-accent { background: var(--accent); color: white; }
+        .btn-accent:hover { background: #0c9167; }
         .btn-ghost { background: var(--surf2); color: var(--text2); border: var(--border); }
+        .btn-ghost:hover { background: var(--surface); color: var(--text); }
         .btn-dark { background: var(--text); color: var(--surface); }
+        .btn-dark:hover { background: var(--accent2); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
         
         .history-wrap { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-top: 12px; scrollbar-width: none; }
+        .history-wrap::-webkit-scrollbar { display: none; }
         .history-item { flex-shrink: 0; background: var(--surf2); border: var(--border); padding: 6px 12px; border-radius: 20px; font-size: 10px; font-family: var(--mono); font-weight: 700; cursor: pointer; color: var(--text2); transition: all 0.2s; }
-        .history-item:hover { border-color: var(--accent); color: var(--accent); background: var(--surface); }
+        .history-item:hover { border-color: var(--accent); color: var(--accent); background: var(--surface); transform: scale(1.05); }
 
         .metrics-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; display: none; }
         .metric { background: var(--surface); padding: 14px; border-radius: var(--radius); border: var(--border); text-align: center; box-shadow: var(--shadow); }
@@ -59,14 +68,28 @@
         .badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; font-family: var(--mono); margin-top: 8px; text-transform: uppercase; }
         .badge-sats { background: rgba(37, 99, 235, 0.1); color: #2563eb; border: 1px solid rgba(37, 99, 235, 0.2); }
         .badge-dnata { background: rgba(217, 119, 6, 0.1); color: #d97706; border: 1px solid rgba(217, 119, 6, 0.2); }
+        .badge-unknown { background: rgba(148, 163, 184, 0.1); color: #64748b; border: 1px solid rgba(148, 163, 184, 0.2); }
 
-        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1c2128; color: #ffffff; padding: 12px 24px; border-radius: 12px; font-size: 11px; font-weight: 700; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.4); font-family: var(--mono); border: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1c2128; color: #ffffff; padding: 12px 24px; border-radius: 12px; font-size: 11px; font-weight: 700; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.4); font-family: var(--mono); border: 1px solid rgba(255,255,255,0.1); text-align: center; white-space: pre-line; }
         .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.error { background: var(--danger); }
+        .toast.warning { background: var(--warn); }
+
+        .sync-status { font-size: 8px; text-align: center; margin-bottom: 10px; color: var(--label); font-family: var(--mono); text-transform: uppercase; padding: 8px; background: var(--surf2); border-radius: var(--radius-sm); border: var(--border); }
+        .sync-status.loading::after { content: '...'; animation: dots 1.5s infinite; }
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
 
         .app-footer { margin-top: 40px; padding: 24px; text-align: center; border-top: 1px solid var(--sep); background: var(--surf2); border-radius: var(--radius); }
         .footer-copy { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--label); font-family: var(--mono); margin-bottom: 6px; }
         .footer-author { font-size: 12px; font-weight: 700; color: var(--text2); display: flex; align-items: center; justify-content: center; gap: 6px; }
         .footer-version { display: inline-block; margin-top: 10px; padding: 2px 8px; background: var(--sep); border-radius: 4px; font-size: 9px; font-weight: 800; color: var(--label); }
+
+        .loader { width: 16px; height: 16px; border: 2px solid var(--sep); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body onload="initApp()">
@@ -79,7 +102,7 @@
         <div class="header-title">CargoTrack</div>
         <div class="header-author">Adi Hidayat</div>
     </div>
-    <button class="dark-toggle" onclick="toggleDark()" id="darkBtn">🌙</button>
+    <button class="dark-toggle" onclick="toggleDark()" id="darkBtn" aria-label="Toggle dark mode">🌙</button>
 </div>
 
 <div class="wrap">
@@ -88,16 +111,25 @@
         <div class="card-section">
             <div class="section-label">Input Air Waybill</div>
             <div class="input-group">
-                <input type="text" id="awbInput" placeholder="Cth: 618JFK12345678" oninput="autoFormat(this)">
-                <button class="btn btn-accent" onclick="processAWB()">LACAK</button>
+                <input 
+                    type="text" 
+                    id="awbInput" 
+                    placeholder="Cth: 618JFK12345678" 
+                    oninput="autoFormat(this)"
+                    onkeypress="if(event.key==='Enter') processAWB()"
+                    aria-label="Input nomor Air Waybill"
+                    autocomplete="off"
+                    spellcheck="false"
+                >
+                <button class="btn btn-accent" onclick="processAWB()" id="trackBtn" aria-label="Lacak kargo">LACAK</button>
             </div>
             <div id="history" class="history-wrap"></div>
         </div>
     </div>
 
     <!-- Sync Indicator -->
-    <div id="syncStatus" style="font-size: 8px; text-align: center; margin-bottom: 10px; color: var(--label); font-family: var(--mono); text-transform: uppercase;">
-        🔄 Sinkronisasi database...
+    <div id="syncStatus" class="sync-status loading">
+        🔄 Sinkronisasi database
     </div>
 
     <div class="metrics-row" id="metrics">
@@ -119,7 +151,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                     <div>
                         <h2 id="airlineName" style="font-size: 20px; font-weight: 800; letter-spacing: -0.8px; color: var(--text);">Detecting...</h2>
-                        <div id="handlerBadge" class="badge">SATS</div>
+                        <div id="handlerBadge" class="badge badge-sats">SATS</div>
                     </div>
                     <div style="text-align: right;">
                         <div style="font-size: 8px; color: var(--label); font-weight: 800; margin-bottom: 2px; text-transform: uppercase;">Reference</div>
@@ -146,50 +178,125 @@
             <span>APP BY</span>
             <span style="color: var(--accent);">ADI HIDAYAT</span>
         </div>
-        <div class="footer-version">VERSION 1.7 • <span id="dbDate">...</span></div>
+        <div class="footer-version">VERSION 1.8 • <span id="dbDate">...</span></div>
     </div>
 </div>
 
 <script>
     const DB_URL = "https://raw.githubusercontent.com/adihidayatoffice-dev/Cargotrack/main/database.json";
+    const CACHE_DURATION = 3600000; // 1 hour in milliseconds
+    const MIN_AWB_LENGTH = 11; // Minimum AWB digit length
 
     let isDark = false;
     let cleanNumbers = "";
     let isDnata = false;
+    let currentAirlineUrl = "";
     let DNATA_LIST = {};
     let SATS_LIST = {};
 
     function initApp() {
+        loadDarkMode();
         syncDatabase();
         renderHistory();
     }
 
-    async function syncDatabase() {
-        const statusEl = document.getElementById('syncStatus');
-        try {
-            const response = await fetch(DB_URL);
-            const data = await response.json();
-            DNATA_LIST = data.dnata;
-            SATS_LIST = data.sats;
-            statusEl.innerHTML = "✅ Database Aktif (" + (Object.keys(DNATA_LIST).length + Object.keys(SATS_LIST).length) + " Maskapai)";
-            document.getElementById('dbDate').innerText = "DB Sync: " + data.last_updated;
-        } catch (e) {
-            statusEl.innerHTML = "⚠️ Offline (Gunakan Backup)";
-            DNATA_LIST = {"235":"Turkish Airlines", "057":"Air France", "176":"Emirates"};
-            SATS_LIST = {"618":"Singapore Airlines", "157":"Qatar Airways"};
+    function loadDarkMode() {
+        const savedDark = localStorage.getItem('dark_mode') === 'true';
+        if (savedDark) {
+            isDark = true;
+            document.body.classList.add('dark');
+            document.getElementById('darkBtn').textContent = '☀️';
         }
     }
 
-    // Hanya izinkan input visual yang rapi, tapi sistem tetap simpan angka
+    async function syncDatabase() {
+        const statusEl = document.getElementById('syncStatus');
+        const lastSync = localStorage.getItem('last_db_sync');
+        const now = Date.now();
+
+        // Check cache first
+        if (lastSync && (now - parseInt(lastSync)) < CACHE_DURATION) {
+            const cached = localStorage.getItem('db_cache');
+            if (cached) {
+                try {
+                    const data = JSON.parse(cached);
+                    DNATA_LIST = data.dnata || {};
+                    SATS_LIST = data.sats || {};
+                    const totalCarriers = Object.keys(DNATA_LIST).length + Object.keys(SATS_LIST).length;
+                    statusEl.innerHTML = `✅ Database Aktif (${totalCarriers} Maskapai)`;
+                    statusEl.classList.remove('loading');
+                    document.getElementById('dbDate').textContent = data.last_updated || 'N/A';
+                    return;
+                } catch (e) {
+                    console.error('Cache parse error:', e);
+                }
+            }
+        }
+
+        // Fetch fresh data
+        try {
+            statusEl.innerHTML = '🔄 Sinkronisasi database';
+            statusEl.classList.add('loading');
+            
+            const response = await fetch(DB_URL);
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const data = await response.json();
+            DNATA_LIST = data.dnata || {};
+            SATS_LIST = data.sats || {};
+            
+            const totalCarriers = Object.keys(DNATA_LIST).length + Object.keys(SATS_LIST).length;
+            statusEl.innerHTML = `✅ Database Aktif (${totalCarriers} Maskapai)`;
+            statusEl.classList.remove('loading');
+            document.getElementById('dbDate').textContent = data.last_updated || new Date().toLocaleDateString('id-ID');
+            
+            // Save to cache
+            localStorage.setItem('last_db_sync', now.toString());
+            localStorage.setItem('db_cache', JSON.stringify(data));
+            
+        } catch (e) {
+            console.error('Database sync error:', e);
+            statusEl.innerHTML = '⚠️ Offline Mode (Backup Database)';
+            statusEl.classList.remove('loading');
+            
+            // Fallback to backup
+            DNATA_LIST = {
+                "235": "Turkish Airlines",
+                "057": "Air France",
+                "176": "Emirates",
+                "172": "Etihad Airways",
+                "074": "KLM Royal Dutch Airlines"
+            };
+            SATS_LIST = {
+                "618": "Singapore Airlines",
+                "157": "Qatar Airways",
+                "105": "Cathay Pacific",
+                "297": "Air China",
+                "876": "China Southern Airlines"
+            };
+        }
+    }
+
     function autoFormat(input) {
-        let val = input.value.toUpperCase();
+        let val = input.value.toUpperCase().trim();
         input.value = val;
+        
+        // Remove error state on input
+        input.classList.remove('error');
     }
 
     function renderHistory() {
         const history = JSON.parse(localStorage.getItem('cargo_history') || "[]");
         const wrap = document.getElementById('history');
-        wrap.innerHTML = history.map(awb => `<div class="history-item" onclick="useHistory('${awb}')">${awb}</div>`).join('');
+        
+        if (history.length === 0) {
+            wrap.innerHTML = '';
+            return;
+        }
+        
+        wrap.innerHTML = history.map(awb => 
+            `<div class="history-item" onclick="useHistory('${awb}')" title="Klik untuk menggunakan: ${awb}">${awb}</div>`
+        ).join('');
     }
 
     function useHistory(awb) {
@@ -200,27 +307,51 @@
     function toggleDark() {
         isDark = !isDark;
         document.body.classList.toggle('dark', isDark);
-        document.getElementById('darkBtn').textContent = isDark ? '☀️' : '🌙';
+        const btn = document.getElementById('darkBtn');
+        btn.textContent = isDark ? '☀️' : '🌙';
+        localStorage.setItem('dark_mode', isDark.toString());
     }
 
-    function showToast(msg) {
+    function showToast(msg, type = 'success') {
         const t = document.getElementById('toast');
-        t.innerHTML = msg;
+        t.textContent = msg;
+        t.className = 'toast';
+        if (type === 'error') t.classList.add('error');
+        if (type === 'warning') t.classList.add('warning');
         t.classList.add('show');
         setTimeout(() => t.classList.remove('show'), 5000);
     }
 
     function processAWB() {
-        const rawVal = document.getElementById('awbInput').value.trim();
-        if (!rawVal) return;
+        const input = document.getElementById('awbInput');
+        const rawVal = input.value.trim();
+        
+        if (!rawVal) {
+            input.classList.add('error');
+            showToast('⚠️ Masukkan nomor AWB terlebih dahulu', 'warning');
+            input.focus();
+            return;
+        }
 
-        // MEMBERSIHKAN: Hanya ambil angka saja untuk disalin
+        // Extract only numbers for processing
         cleanNumbers = rawVal.replace(/[^0-9]/g, '');
+        
+        // Validation
+        if (cleanNumbers.length < 3) {
+            input.classList.add('error');
+            showToast('⚠️ AWB terlalu pendek (minimal 3 digit)', 'error');
+            return;
+        }
+
+        if (cleanNumbers.length < MIN_AWB_LENGTH) {
+            input.classList.add('error');
+            showToast(`⚠️ AWB tidak valid (minimal ${MIN_AWB_LENGTH} digit)\nAnda memasukkan: ${cleanNumbers.length} digit`, 'warning');
+            return;
+        }
+
         const prefix = cleanNumbers.substring(0, 3);
 
-        if (cleanNumbers.length < 3) return;
-
-        // Simpan riwayat input asli
+        // Save to history
         let history = JSON.parse(localStorage.getItem('cargo_history') || "[]");
         if (!history.includes(rawVal)) {
             history.unshift(rawVal);
@@ -229,15 +360,32 @@
             renderHistory();
         }
 
+        // Detect handler and airline
         let handler, terminal, airline, badgeClass;
+        
         if (DNATA_LIST[prefix]) {
-            isDnata = true; handler = "DNATA"; terminal = "T1/T2 dnata Hub"; 
-            airline = DNATA_LIST[prefix]; badgeClass = "badge-dnata";
+            isDnata = true;
+            handler = "DNATA";
+            terminal = "T1/T2 dnata Hub";
+            airline = DNATA_LIST[prefix];
+            badgeClass = "badge-dnata";
+        } else if (SATS_LIST[prefix]) {
+            isDnata = false;
+            handler = "SATS";
+            terminal = "AFT 1-6 SATS Hub";
+            airline = SATS_LIST[prefix];
+            badgeClass = "badge-sats";
         } else {
-            isDnata = false; handler = "SATS"; terminal = "AFT 1-6 SATS Hub"; 
-            airline = SATS_LIST[prefix] || "International Carrier"; badgeClass = "badge-sats";
+            // Unknown carrier
+            isDnata = false;
+            handler = "UNKNOWN";
+            terminal = "Check with Airport";
+            airline = "Unknown Carrier (Prefix: " + prefix + ")";
+            badgeClass = "badge-unknown";
+            showToast(`⚠️ Prefix ${prefix} tidak dikenali\nGunakan portal umum untuk tracking`, 'warning');
         }
 
+        // Update UI
         document.getElementById('airlineName').textContent = airline;
         document.getElementById('mHandler').textContent = handler;
         document.getElementById('mTerminal').textContent = terminal;
@@ -250,46 +398,109 @@
         document.getElementById('metrics').style.display = 'grid';
         document.getElementById('resultArea').style.display = 'block';
         
-        // SALIN HANYA ANGKA
-        navigator.clipboard.writeText(cleanNumbers);
-        showToast("✓ ANGKA DISALIN: " + cleanNumbers);
+        // Copy numbers to clipboard
+        copyToClipboard(cleanNumbers, '✓ ANGKA DISALIN: ' + cleanNumbers);
+    }
+
+    function copyToClipboard(text, successMsg) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    showToast(successMsg);
+                })
+                .catch(err => {
+                    console.error('Clipboard error:', err);
+                    fallbackCopy(text);
+                });
+        } else {
+            fallbackCopy(text);
+        }
+    }
+
+    function fallbackCopy(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            showToast('✓ ANGKA DISALIN: ' + text);
+        } catch (err) {
+            showToast('⚠️ Gagal menyalin otomatis\nCopy manual: ' + text, 'warning');
+        }
+        document.body.removeChild(textarea);
     }
 
     function goToDirectTracking() {
         const prefix = cleanNumbers.substring(0, 3);
         let url = "";
 
-        switch(prefix) {
-            case "618": 
-                // UPDATE: Link Quick Search SIA Terbaru
-                url = "https://www.siacargo.com/e-services/quicksearch_public/"; 
-                break;
-            case "157": url = "https://www.qrcargo.com/s/track-and-trace"; break;
-            case "176": url = "https://www.skycargo.com/tracking/"; break;
-            case "235": url = "https://www.turkishcargo.com.tr/en/online-services/cargo-tracking"; break;
-            default: url = "https://www.track-trace.com/aircargo";
-        }
+        // Carrier-specific tracking URLs
+        const carrierUrls = {
+            "618": "https://www.siacargo.com/e-services/quicksearch_public/",
+            "157": "https://www.qrcargo.com/s/track-and-trace",
+            "176": "https://www.skycargo.com/tracking/",
+            "235": "https://www.turkishcargo.com.tr/en/online-services/cargo-tracking",
+            "057": "https://www.afklcargo.com/mycargo/shipment/detail",
+            "105": "https://www.cathaypacificcargo.com/track-and-trace",
+            "074": "https://www.afklcargo.com/mycargo/shipment/detail"
+        };
 
-        navigator.clipboard.writeText(cleanNumbers).then(() => {
-            showToast("✓ ANGKA DISALIN!<br>SILAKAN PASTE DI WEB MASKAPAI");
-            setTimeout(() => { window.open(url, '_blank'); }, 800);
-        });
+        url = carrierUrls[prefix] || "https://www.track-trace.com/aircargo";
+        currentAirlineUrl = url;
+
+        copyToClipboard(cleanNumbers, '✓ ANGKA DISALIN!\nSILAKAN PASTE DI WEB MASKAPAI');
+        
+        setTimeout(() => {
+            window.open(url, '_blank');
+        }, 800);
     }
 
     function openMap() {
-        const lat = isDnata ? "1.3833" : "1.3815";
-        const lng = isDnata ? "1.4001" : "103.9968";
-        const name = isDnata ? "dnata+Singapore+Cargo" : "SATS+Airfreight+Terminal+5";
-        window.open(`https://www.google.com/maps/search/?api=1&query=${name}&query_place_id=${lat},${lng}`, '_blank');
+        // Fixed coordinates for Singapore cargo terminals
+        let lat, lng, name;
+        
+        if (isDnata) {
+            lat = "1.3833";
+            lng = "103.9850"; // FIXED: Correct longitude for Singapore
+            name = "dnata+Singapore+Cargo+Terminal";
+        } else {
+            lat = "1.3815";
+            lng = "103.9968";
+            name = "SATS+Airfreight+Terminal+5";
+        }
+        
+        // Corrected Google Maps URL
+        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+        window.open(mapUrl, '_blank');
     }
 
     function goToOfficial() {
-        const url = isDnata ? "https://www.dnata.com/en/singapore/cargo" : "https://www.satscargo.com/e-services/cargo-tracking/";
-        navigator.clipboard.writeText(cleanNumbers).then(() => {
-            showToast("✓ ANGKA DISALIN!<br>SILAKAN PASTE DI WEB GUDANG");
-            setTimeout(() => { window.open(url, '_blank'); }, 800);
-        });
+        let url;
+        
+        if (isDnata) {
+            url = "https://www.dnata.com/en/singapore/cargo";
+        } else {
+            url = "https://www.satscargo.com/e-services/cargo-tracking/";
+        }
+        
+        copyToClipboard(cleanNumbers, '✓ ANGKA DISALIN!\nSILAKAN PASTE DI WEB GUDANG');
+        
+        setTimeout(() => {
+            window.open(url, '_blank');
+        }, 800);
     }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + K to focus search
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            document.getElementById('awbInput').focus();
+        }
+    });
 </script>
 
 </body>
